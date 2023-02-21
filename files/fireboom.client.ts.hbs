@@ -12,10 +12,10 @@ import {
     LogoutOptions
 } from "fireboom-wundersdk/client";
 
-export const FIREBOOM_S3_ENABLED = {{hasS3Provider}};
+export const FIREBOOM_S3_ENABLED = {{hasS3Providers}};
 export const FIREBOOM_AUTH_ENABLED = {{hasAuthProviders}};
 
-{{#if hasS3Provider}}
+{{#if hasS3Providers}}
 export interface UploadResponse { key: string }
 
 export enum S3Provider {
@@ -153,7 +153,7 @@ export class Client {
         }
     {{/unless}}{{/if}}
 
-		{{#if hasS3Provider}}
+		{{#if hasS3Providers}}
     public uploadFiles = async (config: UploadConfig): Promise<Response<UploadResponse[]>> => {
       try {
         // @ts-ignore
