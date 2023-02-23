@@ -1,0 +1,23 @@
+{{name}}{{#if isRequired}}{{else}}?{{/if}}:
+{{#if enumValues}}
+    {{#if isArray}}
+     ({{concat enumValues "|"}}
+    {{else}}
+        {{schemaWriteType name concat enumValues "|"  }}
+    {{/if}}
+
+{{/if}}
+if len(enumValues) > 0 {
+values := strings.Join(enumValues, "|")
+if isArray {
+out += " (" + values + ") "
+} else {
+writeType(&out, name, values, isRequired)
+}
+return
+}
+if isArray {
+out += "string"
+} else {
+writeType(&out, name, "string", isRequired)
+}

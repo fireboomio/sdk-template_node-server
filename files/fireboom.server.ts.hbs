@@ -1,21 +1,77 @@
-import type { GraphQLServerConfig, BaseRequestContext, WunderGraphUser } from "fireboom-wundersdk/server";
-import type { HooksConfig } from "./fireboom.hooks";
-import type { InternalClient } from "./fireboom.internal.client"
+import { GraphQLObjectType, GraphQLSchema, GraphQLString } from 'graphql';
+import { configureWunderGraphServer, type AuthenticationResponse } from 'fireboom-wundersdk/server';
+import type { HooksConfig } from './generated/fireboom.hooks';
+import type { InternalClient } from './generated/fireboom.internal.client';
 
-export type Role = {{{ roleDefinitions }}};
+{{#each hooksConfig as |hookConf hookType|}}
+    {{#equalAny hookType "Global"}}
+        {{#each hookConf.httpTransport as |hook hookName|}}
+            {{#if hook.enableForAllOperations}}
+import global_{{hookName}} from '{{hook.tsPath}}';
+            {{/if}}
+        {{/each}}
+    {{/equalAny}}
+    {{#equalAny hookType "Authentication"}}
+        {{#each hookConf.tsPathMap as |tsPath hookName|}}
+import {{hookName}} from '{{tsPath}}';
+        {{/each}}
+    {{/equalAny}}
+    {{#equalAny hookType "Queries,Mutations"}}
+        {{#each hookConf as |operationConf operationName|}}
+            {{#each operationConf.tsPathMap as |tsPath hookName|}}
+import {{formatString operationName}}_{{hookName}} from '{{tsPath}}';
+            {{/each}}
+        {{/each}}
+    {{/equalAny}}
+{{/each}}
+{{#each dataSources}}
+    {{#if isCustomized}}
+import {{formatString apiNameSpace}} from './customize/{{apiNameSpace}}';
+    {{/if}}
+{{/each}}
 
-export interface User extends WunderGraphUser<Role> {}
-
-export interface Config {
-    hooks: HooksConfig;
-    graphqlServers?: Omit<GraphQLServerConfig, 'routeUrl'>[];
-}
-
-export interface OutputConfig {
-    hooks: HooksConfig;
-    graphqlServers?: (GraphQLServerConfig & { url: string })[];
-}
-
-export interface GraphQLExecutionContext {
-    wundergraph: BaseRequestContext<User, InternalClient>;
-}
+export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() => ({
+    hooks: {
+{{#each hooksConfig as |hookConf hookType|}}
+        {{lowerFirst hookType}}: {
+    {{#equalAny hookType "Global"}}
+            httpTransport: {
+        {{#each hookConf.httpTransport as |hook hookName|}}
+            {{#if hook.enableForAllOperations}}
+                {{hookName}}: {
+                    hook: global_{{hookName}},
+                },
+            {{/if}}
+        {{/each}}
+            }
+    {{/equalAny}}
+    {{#equalAny hookType "Authentication"}}
+        {{#each hookConf.tsPathMap as |tsPath hookName|}}
+            {{hookName}},
+        {{/each}}
+    {{/equalAny}}
+    {{#equalAny hookType "Queries,Mutations"}}
+        {{#each hookConf as |operationConf operationName|}}
+            {{#each operationConf.tsPathMap as |tsPath hookName|}}
+            "{{operationName}}": {
+                {{hookName}}: {{formatString operationName}}_{{hookName}},
+            },
+            {{/each}}
+        {{/each}}
+    {{/equalAny}}
+        },
+{{/each}}
+    },
+    graphqlServers: [
+{{#each dataSources}}
+    {{#if isCustomized}}
+        {
+            apiNamespace: "{{apiNameSpace}}",
+            serverName: "{{apiNameSpace}}",
+            enableGraphQLEndpoint: true,
+            schema: {{formatString apiNameSpace}}
+        },
+    {{/if}}
+{{/each}}
+    ]
+}));

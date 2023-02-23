@@ -2,6 +2,6 @@
   "name": "node-server",
   "author": "fireboom",
   "description": "这里是sdk的描述",
-  "outputPath": "./custom-ts/generated",
-  "switch": true
+  "outputPath": "./custom-ts",
+  "enabled": true
 }
