@@ -84,11 +84,11 @@ function createPrismaSDK(dataSourceId: string | number): PrismaDataSource {
 }
 
 {{#each dataSources}}
-const {{apiNameSpace}} = createPrismaSDK('{{apiId}}')
+const {{specialUnderlined apiNameSpace}} = createPrismaSDK('{{apiId}}')
 {{/each}}
 
 export const prisma = {
 {{#each dataSources}}
-  {{apiNameSpace}} : {{apiNameSpace}},
+  "{{apiNameSpace}}" : {{specialUnderlined apiNameSpace}},
 {{/each}}
 }

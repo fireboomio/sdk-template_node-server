@@ -19,14 +19,14 @@ import {{hookName}} from '{{tsPath}}';
     {{#equalAny hookType "Queries,Mutations"}}
         {{#each hookConf as |operationConf operationName|}}
             {{#each operationConf.tsPathMap as |tsPath hookName|}}
-import {{formatString operationName}}_{{hookName}} from '{{tsPath}}';
+import {{specialUnderlined operationName}}_{{hookName}} from '{{tsPath}}';
             {{/each}}
         {{/each}}
     {{/equalAny}}
 {{/each}}
 {{#each dataSources}}
     {{#if isCustomized}}
-import {{formatString apiNameSpace}} from './customize/{{apiNameSpace}}';
+import {{specialUnderlined apiNameSpace}} from './customize/{{apiNameSpace}}';
     {{/if}}
 {{/each}}
 
@@ -54,7 +54,7 @@ export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() =>
         {{#each hookConf as |operationConf operationName|}}
             {{#each operationConf.tsPathMap as |tsPath hookName|}}
             "{{operationName}}": {
-                {{hookName}}: {{formatString operationName}}_{{hookName}},
+                {{hookName}}: {{specialUnderlined operationName}}_{{hookName}},
             },
             {{/each}}
         {{/each}}
@@ -69,7 +69,7 @@ export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() =>
             apiNamespace: "{{apiNameSpace}}",
             serverName: "{{apiNameSpace}}",
             enableGraphQLEndpoint: true,
-            schema: {{formatString apiNameSpace}}
+            schema: {{specialUnderlined apiNameSpace}}
         },
     {{/if}}
 {{/each}}
