@@ -53,7 +53,7 @@ export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() =>
     {{#equalAny hookType "Queries,Mutations"}}
         {{#each hookConf as |operationConf operationName|}}
             {{#isNotEmpty operationConf.tsPathMap}}
-            {{replaceSpecial operationName "$"}}: {
+            "{{operationName}}": {
             {{#each operationConf.tsPathMap as |tsPath hookName|}}
                 {{hookName}}: {{replaceSpecial operationName "$"}}_{{hookName}},
             {{/each}}

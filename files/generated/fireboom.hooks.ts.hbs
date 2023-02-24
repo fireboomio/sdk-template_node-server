@@ -124,13 +124,13 @@ export interface HooksConfig extends HooksConfiguration<Queries, Mutations, Subs
 export interface Queries {
 {{#if hasQueries}}
     {{#each queries}}
-        {{replaceSpecial operationName "$"}}?: {
-        mockResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}}) => Promise<{{replaceSpecial operationName "$"}}Response>;
-        preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
-        {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{replaceSpecial operationName "$"}}Input>;{{/if}}
-        postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{replaceSpecial operationName "$"}}Response>) => Promise<void>;
-        customResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}}) => Promise<void | {{replaceSpecial operationName "$"}}Response | null>;
-        mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{replaceSpecial operationName "$"}}Response>) => Promise<{{replaceSpecial operationName "$"}}Response>;
+        "{{path}}"?: {
+        mockResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<{{operationName}}Response>;
+        preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
+        {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{operationName}}Input>;{{/if}}
+        postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{operationName}}Response>) => Promise<void>;
+        customResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<void | {{operationName}}Response | null>;
+        mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{operationName}}Response>) => Promise<{{operationName}}Response>;
         }
     {{/each}}
 {{/if}}
@@ -139,13 +139,13 @@ export interface Queries {
 export interface Mutations {
 {{#if hasMutations}}
     {{#each mutations}}
-        {{replaceSpecial operationName "$"}}?: {
-        mockResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}}) => Promise<{{replaceSpecial operationName "$"}}Response>;
-        preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
-        {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{replaceSpecial operationName "$"}}Input>;{{/if}}
-        postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{replaceSpecial operationName "$"}}Response>) => Promise<void>;
-        customResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}}) => Promise<void | {{replaceSpecial operationName "$"}}Response>;
-        mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{replaceSpecial operationName "$"}}Response>) => Promise<{{replaceSpecial operationName "$"}}Response>;
+        "{{path}}"?: {
+        mockResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<{{operationName}}Response>;
+        preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
+        {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{operationName}}Input>;{{/if}}
+        postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{operationName}}Response>) => Promise<void>;
+        customResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<void | {{operationName}}Response>;
+        mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{operationName}}Response>) => Promise<{{operationName}}Response>;
         }
     {{/each}}
 {{/if}}
@@ -154,11 +154,11 @@ export interface Mutations {
 export interface Subscriptions {
 {{#if hasSubscriptions}}
 		{{#each subscriptions}}
-        {{replaceSpecial operationName "$"}}?: {
-        preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
-        {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{replaceSpecial operationName "$"}}Input>;{{/if}}
-        postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{replaceSpecial operationName "$"}}Response>) => Promise<void>;
-        mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{replaceSpecial operationName "$"}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{replaceSpecial operationName "$"}}Response>) => Promise<{{replaceSpecial operationName "$"}}Response>;
+        "{{path}}"?: {
+        preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
+        {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{operationName}}Input>;{{/if}}
+        postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{operationName}}Response>) => Promise<void>;
+        mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{operationName}}Response>) => Promise<{{operationName}}Response>;
         }
 		{{/each}}
 {{/if}}

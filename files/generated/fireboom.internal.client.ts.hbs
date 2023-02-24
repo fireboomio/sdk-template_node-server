@@ -5,7 +5,7 @@ import { {{ modelImports }} } from "./models"
 export interface Queries  {
 {{#if hasInternalQueries}}
   {{#each internalQueries}}
-    {{replaceSpecial operationName "$"}}: ({{#if hasInternalInput}}options: OperationArgsWithInput<Internal{{replaceSpecial operationName "$"}}Input>{{/if}}) => Promise<{{replaceSpecial operationName "$"}}Response>;
+    "{{path}}": ({{#if hasInternalInput}}options: OperationArgsWithInput<Internal{{operationName}}Input>{{/if}}) => Promise<{{operationName}}Response>;
   {{/each}}
 {{else}}
   queries: {};
@@ -15,7 +15,7 @@ export interface Queries  {
 export interface Mutations  {
 {{#if hasInternalMutations}}
   {{#each internalMutations}}
-    {{replaceSpecial operationName "$"}}: ({{#if hasInternalInput}}options: OperationArgsWithInput<{{replaceSpecial operationName "$"}}Input>{{/if}}) => Promise<{{replaceSpecial operationName "$"}}Response>;
+    "{{path}}": ({{#if hasInternalInput}}options: OperationArgsWithInput<{{operationName}}Input>{{/if}}) => Promise<{{operationName}}Response>;
   {{/each}}
 {{else}}
   mutations: {};
