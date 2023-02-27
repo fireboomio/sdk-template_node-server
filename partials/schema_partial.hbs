@@ -1,0 +1,21 @@
+{{#equalAny type 'string,number,bool,JSONValue'}}
+  {{#unless wrapArray}}{{key}}{{#unless isRequired}}?{{/unless}}: {{/unless}}{{type}}
+{{/equalAny}}
+
+{{#equalAny type 'object'}}
+    {{#if wrapArray}}
+{
+    {{else}}
+{{key}}{{#unless isRequired}}?{{/unless}}: {
+    {{/if}}
+    {{#each this.properties as |value key|}}
+  {{> schema_partial properties=value.properties key=key isRequired=(stringInArray key value.required) wrapArray=false}}
+    {{/each}}
+}{{#unless wrapArray}},{{/unless}}
+{{/equalAny}}
+
+{{#equalAny type 'array'}}
+{{key}}{{#unless isRequired}}?{{/unless}}:
+  {{> schema_partial properties=items key="" isRequired=isRequired wrapArray=true}}
+[],
+{{/equalAny}}

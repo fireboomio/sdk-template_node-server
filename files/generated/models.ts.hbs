@@ -1,0 +1,49 @@
+{{#each operations}}
+    {{#isNotEmpty inputSchema}}
+        {{#isNotEmpty inputSchema.properties}}
+export interface Internal{{name}}Input {
+            {{#each inputSchema.properties as |schema key|}}
+   {{> schema_partial properties=schema.properties key=key isRequired=(stringInArray key schema.required) wrapArray=false}}
+            {{/each}}
+}
+        {{/isNotEmpty}}
+        {{#each inputSchema.definitions as |schema name|}}
+export interface {{name}} {
+            {{#each schema.properties as |schema key|}}
+   {{> schema_partial properties=schema.properties key=key isRequired=(stringInArray key schema.required) wrapArray=false}}
+            {{/each}}
+}
+        {{/each}}
+    {{/isNotEmpty}}
+    {{#isNotEmpty injectedSchema}}
+        {{#isNotEmpty properties}}
+export interface Injected{{name}}Input {
+        {{#each injectedSchema.properties as |schema key|}}
+   {{> schema_partial properties=schema.properties key=key isRequired=(stringInArray key schema.required) wrapArray=false}}
+        {{/each}}
+}
+        {{/isNotEmpty}}
+    {{/isNotEmpty}}
+    {{#isNotEmpty outputSchema}}
+export interface {{name}}Response {
+    data?: {{name}}Response
+    errors?: ReadonlyArray<GraphQLError>;
+}
+        {{#isNotEmpty outputSchema.properties.data}}
+export interface {{name}}ResponseData {
+            {{#each outputSchema.properties.data.properties as |schema key|}}
+    {{> schema_partial properties=schema.properties key=key isRequired=(stringInArray key schema.required) wrapArray=false}}
+            {{/each}}
+}
+        {{/isNotEmpty}}
+    {{/isNotEmpty}}
+{{/each}}
+
+export type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
+
+export type JSONObject = { [key: string]: JSONValue };
+
+export interface GraphQLError {
+    message: string;
+    path?: ReadonlyArray<string | number>;
+}
