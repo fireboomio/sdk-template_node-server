@@ -1,21 +1,20 @@
-{{#equalAny type 'string,number,bool,JSONValue'}}
-  {{#unless wrapArray}}{{key}}{{#unless isRequired}}?{{/unless}}: {{/unless}}{{type}}
-{{/equalAny}}
+{{#if (equalAny (realType type) 'string,integer,bool,JSONValue')}}
+  {{key}}{{#unless isRequired}}?{{/unless}}: {{realType type}}
+{{/if~}}
 
-{{#equalAny type 'object'}}
-    {{#if wrapArray}}
-{
-    {{else}}
+{{~#if (equalAny (realType type) 'object')}}
 {{key}}{{#unless isRequired}}?{{/unless}}: {
-    {{/if}}
-    {{#each this.properties as |value key|}}
-  {{> schema_partial properties=value.properties key=key isRequired=(stringInArray key value.required) wrapArray=false}}
-    {{/each}}
-}{{#unless wrapArray}},{{/unless}}
-{{/equalAny}}
+    {{#each properties as |schema key|}}
+  {{> schema_partial data=schema.properties key=key isRequired=(stringInArray key required)}}
+    {{~/each~}}
+}
+{{/if~}}
 
-{{#equalAny type 'array'}}
-{{key}}{{#unless isRequired}}?{{/unless}}:
-  {{> schema_partial properties=items key="" isRequired=isRequired wrapArray=true}}
+{{~#if (equalAny (realType type) 'array')}}
+{{key}}{{#unless isRequired}}?{{/unless}}: {
+{{#each items.properties as |schema key|}}
+  {{> schema_partial data=schema key=key isRequired=(stringInArray key required)}}
+{{~/each}}
+},
 [],
-{{/equalAny}}
+{{/if~}}

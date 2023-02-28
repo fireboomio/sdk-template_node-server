@@ -1,0 +1,18 @@
+{{#each operations~}}
+    {{~name}}Response
+    {{~#if hasInput~}}
+        ,{{name}}Input
+        {{~#if includeInternal~}}
+            ,Internal{{name}}Input
+        {{~/if~}}
+    {{~/if~}}
+    {{~#if hasInjected~}}
+        {{~#if includeInternal~}}
+            ,Injected{{name}}Input
+        {{~/if~}}
+    {{~/if~}}
+    {{~#if includeResponseData~}}
+        ,{{name}}ResponseData
+    {{~/if~}}
+    {{#unless @last}},{{/unless}}
+{{~/each}}

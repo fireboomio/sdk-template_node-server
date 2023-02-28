@@ -1,5 +1,5 @@
 import type { BaseRequestContext, WunderGraphRequest, WunderGraphResponse, AuthenticationResponse, AuthenticationHookRequest, HooksConfiguration, WsTransportOnConnectionInitResponse, PreUploadHookRequest, PreUploadHookResponse, PostUploadHookRequest, PostUploadHookResponse } from "fireboom-wundersdk/server";
-import { {{ hooksModelImports }} } from "./models"
+import { {{> operation_partial operations=operations includeInternal=true includeResponseData=false}} } from "./models"
 import type { InternalClient } from "./fireboom.internal.client"
 import type { User } from "./fireboom.server"
 
@@ -10,9 +10,27 @@ export type SKIP = "skip";
 // this is semantically equal to throwing an error (500)
 export type CANCEL = "cancel";
 
-export type WUNDERGRAPH_OPERATION = {{{operationNamesUnion}}};
+export type WUNDERGRAPH_OPERATION =
+    {{~#if (isNotEmpty operations)~}}
+        {{~#each operations~}}
+            "{{path}}"
+            {{~#unless @last}} | {{/unless~}}
+        {{~/each~}}
+    {{~else~}}
+        never
+    {{~/if~}}
+;
 
-export type DATA_SOURCES = {{{dataSourcesUnion}}};
+export type DATA_SOURCES =
+{{~#if (isNotEmpty datasourceConfigurations)~}}
+    {{~#each datasourceConfigurations~}}
+        {{id}}
+        {{~#unless @last}} | {{/unless~}}
+    {{~/each~}}
+    {{~else~}}
+    never
+{{~/if~}}
+;
 
 export interface HttpTransportHookRequest extends BaseRequestContext<User, InternalClient> {
 		request: WunderGraphRequest;
@@ -107,13 +125,13 @@ export interface HooksConfig extends HooksConfiguration<Queries, Mutations, Subs
         revalidate?: (hook: AuthenticationHookRequest<User, InternalClient>) => Promise<AuthenticationResponse<User>>;
         postLogout?: (hook: AuthenticationHookRequest<User, InternalClient>) => Promise<void>;
     };
-		{{#if hasQueries}}
+		{{#if (isNotEmpty (filterOperations operations 'isQuery,isNotInternal' true))}}
 				queries?: Queries;
 		{{/if}}
-		{{#if hasMutations}}
+		{{#if (isNotEmpty (filterOperations operations 'isMutation,isNotInternal' true))}}
 				mutations?: Mutations;
 		{{/if}}
-		{{#if hasSubscriptions}}
+		{{#if (isNotEmpty (filterOperations operations 'isSubscription,isNotInternal' true))}}
 				subscriptions?: Subscriptions;
 		{{/if}}
         {{#if hasUploadProviders}}
@@ -122,46 +140,40 @@ export interface HooksConfig extends HooksConfiguration<Queries, Mutations, Subs
 }
 
 export interface Queries {
-{{#if hasQueries}}
-    {{#each queries}}
+    {{#each (filterOperations operations 'isQuery,isNotInternal' true)}}
         "{{path}}"?: {
-        mockResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<{{operationName}}Response>;
-        preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
-        {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{operationName}}Input>;{{/if}}
-        postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{operationName}}Response>) => Promise<void>;
-        customResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<void | {{operationName}}Response | null>;
-        mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{operationName}}Response>) => Promise<{{operationName}}Response>;
+        mockResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<{{name}}Response>;
+        preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
+        {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{name}}Input>;{{/if}}
+        postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{name}}Response>) => Promise<void>;
+        customResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<void | {{name}}Response | null>;
+        mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{name}}Response>) => Promise<{{name}}Response>;
         }
     {{/each}}
-{{/if}}
 }
 
 export interface Mutations {
-{{#if hasMutations}}
-    {{#each mutations}}
+    {{#each (filterOperations operations 'isMutation,isNotInternal' true)}}
         "{{path}}"?: {
-        mockResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<{{operationName}}Response>;
-        preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
-        {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{operationName}}Input>;{{/if}}
-        postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{operationName}}Response>) => Promise<void>;
-        customResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<void | {{operationName}}Response>;
-        mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{operationName}}Response>) => Promise<{{operationName}}Response>;
+        mockResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<{{name}}Response>;
+        preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
+        {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{name}}Input>;{{/if}}
+        postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{name}}Response>) => Promise<void>;
+        customResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<void | {{name}}Response>;
+        mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{name}}Response>) => Promise<{{name}}Response>;
         }
     {{/each}}
-{{/if}}
 }
 
 export interface Subscriptions {
-{{#if hasSubscriptions}}
-		{{#each subscriptions}}
+    {{#each (filterOperations operations 'isSubscription,isNotInternal' true)}}
         "{{path}}"?: {
-        preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
-        {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{operationName}}Input>;{{/if}}
-        postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{operationName}}Response>) => Promise<void>;
-        mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{operationName}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{operationName}}Response>) => Promise<{{operationName}}Response>;
+        preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
+        {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{name}}Input>;{{/if}}
+        postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{name}}Response>) => Promise<void>;
+        mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{name}}Response>) => Promise<{{name}}Response>;
         }
-		{{/each}}
-{{/if}}
+    {{/each}}
 }
 
 export interface Uploads {

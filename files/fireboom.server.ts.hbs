@@ -3,27 +3,27 @@ import { configureWunderGraphServer, type AuthenticationResponse } from 'fireboo
 import type { HooksConfig } from './generated/fireboom.hooks';
 import type { InternalClient } from './generated/fireboom.internal.client';
 
-{{#each hooksConfig as |hookConf hookType|}}
-    {{#equalAny hookType "Global"}}
-        {{#each hookConf.httpTransport as |hook hookName|}}
-            {{#if hook.enableForAllOperations}}
+{{#each hooksConfig as |hookConf hookType|~}}
+    {{~#if (equalAny hookType "Global")~}}
+        {{~#each hookConf.httpTransport as |hook hookName|~}}
+            {{~#if hook.enableForAllOperations~}}
 import global_{{hookName}} from '{{hook.tsPath}}';
-            {{/if}}
-        {{/each}}
-    {{/equalAny}}
-    {{#equalAny hookType "Authentication"}}
-        {{#each hookConf.tsPathMap as |tsPath hookName|}}
+            {{/if~}}
+        {{~/each~}}
+    {{~/if~}}
+    {{~#if (equalAny hookType "Authentication")~}}
+        {{~#each hookConf.tsPathMap as |tsPath hookName|~}}
 import {{hookName}} from '{{tsPath}}';
-        {{/each}}
-    {{/equalAny}}
-    {{#equalAny hookType "Queries,Mutations"}}
-        {{#each hookConf as |operationConf operationName|}}
-            {{#each operationConf.tsPathMap as |tsPath hookName|}}
+        {{/each~}}
+    {{~/if~}}
+    {{~#if (equalAny hookType "Queries,Mutations")~}}
+        {{~#each hookConf as |operationConf operationName|~}}
+            {{~#each operationConf.tsPathMap as |tsPath hookName|~}}
 import {{replaceSpecial operationName "$"}}_{{hookName}} from '{{tsPath}}';
-            {{/each}}
-        {{/each}}
-    {{/equalAny}}
-{{/each}}
+            {{/each~}}
+        {{~/each~}}
+    {{~/if~}}
+{{~/each~}}
 {{#each dataSources}}
     {{#if isCustomized}}
 import {{apiNameSpace}} from './customize/{{apiNameSpace}}';
@@ -34,7 +34,7 @@ export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() =>
     hooks: {
 {{#each hooksConfig as |hookConf hookType|}}
         {{lowerFirst hookType}}: {
-    {{#equalAny hookType "Global"}}
+    {{#if (equalAny hookType "Global")}}
             httpTransport: {
         {{#each hookConf.httpTransport as |hook hookName|}}
             {{#if hook.enableForAllOperations}}
@@ -44,23 +44,23 @@ export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() =>
             {{/if}}
         {{/each}}
             }
-    {{/equalAny}}
-    {{#equalAny hookType "Authentication"}}
+    {{/if}}
+    {{#if (equalAny hookType "Authentication")}}
         {{#each hookConf.tsPathMap as |tsPath hookName|}}
             {{hookName}},
         {{/each}}
-    {{/equalAny}}
-    {{#equalAny hookType "Queries,Mutations"}}
+    {{/if}}
+    {{#if (equalAny hookType "Queries,Mutations")}}
         {{#each hookConf as |operationConf operationName|}}
-            {{#isNotEmpty operationConf.tsPathMap}}
+            {{#if (isNotEmpty operationConf.tsPathMap)}}
             "{{operationName}}": {
             {{#each operationConf.tsPathMap as |tsPath hookName|}}
                 {{hookName}}: {{replaceSpecial operationName "$"}}_{{hookName}},
             {{/each}}
             },
-            {{/isNotEmpty}}
+            {{/if}}
         {{/each}}
-    {{/equalAny}}
+    {{/if}}
         },
 {{/each}}
     },

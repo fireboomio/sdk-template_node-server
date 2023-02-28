@@ -2,7 +2,7 @@ import type { GraphQLServerConfig, BaseRequestContext, WunderGraphUser } from "f
 import type { HooksConfig } from "./fireboom.hooks";
 import type { InternalClient } from "./fireboom.internal.client"
 
-export type Role = {{{ roleDefinitions }}};
+export type Role = {{{ joinString ' | ' roles}}};
 
 export interface User extends WunderGraphUser<Role> {}
 

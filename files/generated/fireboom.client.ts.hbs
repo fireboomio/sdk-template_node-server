@@ -1,7 +1,7 @@
 import fetch from '@web-std/fetch'
 import type { RequestOptions, UserListener, Response } from "fireboom-wundersdk/server";
 
-import type { {{ modelImports }} } from "./models";
+import type { {{> operation_partial operations=operations includeInternal=false includeResponseData=false}} } from "./models";
 import type { User, Role } from "./interface";
 
 import {
@@ -12,14 +12,14 @@ import {
     LogoutOptions
 } from "fireboom-wundersdk/client";
 
-export const FIREBOOM_S3_ENABLED = {{hasS3Providers}};
-export const FIREBOOM_AUTH_ENABLED = {{hasAuthProviders}};
+export const FIREBOOM_S3_ENABLED = {{isNotEmpty s3Providers}};
+export const FIREBOOM_AUTH_ENABLED = {{isNotEmpty authProviders}};
 
-{{#if hasS3Providers}}
+{{#if (isNotEmpty s3Providers)}}
 export interface UploadResponse { key: string }
 
 export enum S3Provider {
-    {{#each s3Provider }}
+    {{#each s3Providers }}
     "{{name}}" = "{{name}}",
     {{/each}}
 }
@@ -28,10 +28,10 @@ export enum S3Provider {
 export type UploadConfig = UploadRequestOptions<S3Provider>
 {{/if}}
 
-{{#if hasAuthProviders}}
+{{#if (isNotEmpty authProviders)}}
 export enum AuthProviderId {
     {{#each authProviders}}
-    "{{.}}" = "{{.}}",
+    "{{id}}" = "{{id}}",
     {{/each}}
 }
 
@@ -96,64 +96,63 @@ export class Client {
       }
     } as Response<any>;
 	};
-    {{#if hasQueries}}
+    {{#if (isNotEmpty (filterOperations operations 'isQuery,isNotInternal' true))}}
     public query = {
-        {{#each queries}}
-        "{{path}}": async (options: RequestOptions<{{#if hasInput}}{{operationName}}Input{{else}}never{{/if}},{{operationName}}Response>) => {
+        {{#each (filterOperations operations 'isQuery,isNotInternal' true)}}
+        "{{path}}": async (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>) => {
             const result = await this._client.query({
-                operationName: "{{operationName}}",
+                operationName: "{{name}}",
                 input: options.input,
                 abortSignal: options.abortSignal,
             })
-            return this.resultToResponse<{{operationName}}Response>(result)
+            return this.resultToResponse<{{name}}Response>(result)
         },
         {{/each}}
     }
     {{/if}}
-    {{#if hasMutations}}
+    {{#if (isNotEmpty (filterOperations operations 'isMutation,isNotInternal' true))}}
     public mutation = {
-    {{#each mutations}}
-        "{{path}}": async (options: RequestOptions<{{#if hasInput}}{{operationName}}Input{{else}}never{{/if}},{{operationName}}Response>) => {
+    {{#each (filterOperations operations 'isMutation,isNotInternal' true)}}
+        "{{path}}": async (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>) => {
             const result =  await this._client.mutate({
                 operationName: "{{path}}",
                 input: options.input,
                 abortSignal: options.abortSignal,
             })
-            return this.resultToResponse<{{operationName}}Response>(result)
+            return this.resultToResponse<{{name}}Response>(result)
         },
     {{/each}}
     }
     {{/if}}
-    {{#if hasSubscriptions}}{{#unless reactNative}}
+    {{#if (isNotEmpty (filterOperations operations 'isSubscription,isNotInternal' true))}}{{#unless reactNative}}
     public subscription = {
-    {{#each subscriptions}}
-        "{{path}}": (options: RequestOptions<{{#if hasInput}}{{operationName}}Input{{else}}never{{/if}},{{operationName}}Response>, cb: (response: Response<{{operationName}}Response>) => void) => {
+    {{#each (filterOperations operations 'isSubscription,isNotInternal' true)}}
+        "{{path}}": (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>, cb: (response: Response<{{name}}Response>) => void) => {
             return this._client.subscribe({
-                operationName: "{{operationName}}",
+                operationName: "{{name}}",
                 isLiveQuery: false,
                 input: options.input,
                 abortSignal: options.abortSignal,
-            }, (result) => cb(this.resultToResponse<{{operationName}}Response>(result)));
+            }, (result) => cb(this.resultToResponse<{{name}}Response>(result)));
         },
     {{/each}}
     }
     {{/unless}}{{/if}}
-    {{#if hasLiveQueries }}{{#unless reactNative}}
+    {{#if (isNotEmpty (filterOperations operations 'isQuery,isLiveQuery,isNotInternal' true))}}{{#unless reactNative}}
         public liveQuery = {
-        {{#each liveQueries }}
-            "{{path}}": (options: RequestOptions<{{#if hasInput}}{{operationName}}Input{{else}}never{{/if}},{{operationName}}Response>, cb: (response: Response<{{operationName}}Response>) => void) => {
+        {{#each (filterOperations operations 'isQuery,isLiveQuery,isNotInternal' true)}}
+            "{{path}}": (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>, cb: (response: Response<{{name}}Response>) => void) => {
                 return this._client.subscribe({
-                    operationName: "{{operationName}}",
+                    operationName: "{{name}}",
                     isLiveQuery: true,
                     input: options.input,
                     abortSignal: options.abortSignal,
-                }, (result) => cb(this.resultToResponse<{{operationName}}Response>(result)));
+                }, (result) => cb(this.resultToResponse<{{name}}Response>(result)));
             },
         {{/each}}
         }
     {{/unless}}{{/if}}
-
-		{{#if hasS3Providers}}
+		{{#if (isNotEmpty s3Providers)}}
     public uploadFiles = async (config: UploadConfig): Promise<Response<UploadResponse[]>> => {
       try {
         // @ts-ignore
@@ -185,11 +184,11 @@ export class Client {
 		return null;
     };
 
-    {{#if hasAuthProviders}}
+    {{#if (isNotEmpty authProviders)}}
     public login : Record<AuthProviderId, AuthProvider['login']> = {
         {{#each authProviders}}
-        {{.}}: (redirectURI?: string): void => {
-            this._client.login(AuthProviderId.{{.}}, redirectURI)
+        {{id}}: (redirectURI?: string): void => {
+            this._client.login(AuthProviderId.{{id}}, redirectURI)
         },
         {{/each}}
     }
@@ -197,8 +196,8 @@ export class Client {
     public authProviders: Array<AuthProvider> = [
         {{#each authProviders}}
         {
-            id: AuthProviderId.{{.}},
-            login: this.login[AuthProviderId.{{.}}]
+            id: AuthProviderId.{{id}},
+            login: this.login[AuthProviderId.{{id}}]
         },
         {{/each}}
     ]

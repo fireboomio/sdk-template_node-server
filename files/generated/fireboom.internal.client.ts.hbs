@@ -1,21 +1,21 @@
 // @ts-nocheck
 import type { OperationArgsWithInput, InternalClient as BaseClient  } from "fireboom-wundersdk/server";
-import { {{ modelImports }} } from "./models"
+import { {{> operation_partial operations=operations includeInternal=false includeResponseData=false}} } from "./models"
 
 export interface Queries  {
-{{#if hasInternalQueries}}
-  {{#each internalQueries}}
-    "{{path}}": ({{#if hasInternalInput}}options: OperationArgsWithInput<Internal{{operationName}}Input>{{/if}}) => Promise<{{operationName}}Response>;
+{{#if (isNotEmpty (filterOperations operations 'isQuery,isNotInternal' true))}}
+  {{#each (filterOperations operations 'isQuery,isNotInternal' true)}}
+    "{{path}}": ({{#if hasInput}}options: OperationArgsWithInput<Internal{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
   {{/each}}
 {{else}}
   queries: {};
 {{/if}}
 }
-		
+
 export interface Mutations  {
-{{#if hasInternalMutations}}
-  {{#each internalMutations}}
-    "{{path}}": ({{#if hasInternalInput}}options: OperationArgsWithInput<{{operationName}}Input>{{/if}}) => Promise<{{operationName}}Response>;
+{{#if (isNotEmpty (filterOperations operations 'isMutation,isNotInternal' true))}}
+  {{#each (filterOperations operations 'isMutation,isNotInternal' true)}}
+    "{{path}}": ({{#if hasInput}}options: OperationArgsWithInput<{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
   {{/each}}
 {{else}}
   mutations: {};
