@@ -3,23 +3,23 @@ import type { OperationArgsWithInput, InternalClient as BaseClient  } from "fire
 import { {{> operation_partial operations=operations includeInternal=false includeResponseData=false}} } from "./models"
 
 export interface Queries  {
-{{#if (isNotEmpty (filterOperations operations 'isQuery,isNotInternal' true))}}
-  {{#each (filterOperations operations 'isQuery,isNotInternal' true)}}
+{{#with (filterOperations operations 'isQuery,isNotInternal' true)}}
+  {{#each this}}
     "{{path}}": ({{#if hasInput}}options: OperationArgsWithInput<Internal{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
   {{/each}}
 {{else}}
   queries: {};
-{{/if}}
+{{/with}}
 }
 
 export interface Mutations  {
-{{#if (isNotEmpty (filterOperations operations 'isMutation,isNotInternal' true))}}
-  {{#each (filterOperations operations 'isMutation,isNotInternal' true)}}
+{{#with (filterOperations operations 'isMutation,isNotInternal' true)}}
+  {{#each this}}
     "{{path}}": ({{#if hasInput}}options: OperationArgsWithInput<{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
   {{/each}}
 {{else}}
   mutations: {};
-{{/if}}
+{{/with}}
 }
 
 export interface InternalClient extends BaseClient<Queries, Mutations> {}
