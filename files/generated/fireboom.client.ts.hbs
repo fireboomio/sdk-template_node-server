@@ -96,7 +96,7 @@ export class Client {
       }
     } as Response<any>;
 	};
-    {{#with (filterOperations operations 'isQuery,isNotInternal' true)}}
+    {{#with (filterOperations operations 'isQuery,!isInternal' true)}}
     {{#if (isNotEmpty this)}}
     public query = {
         {{#each this}}
@@ -112,7 +112,7 @@ export class Client {
     }
     {{/if}}
     {{/with}}
-    {{#with (filterOperations operations 'isMutation,isNotInternal' true)}}
+    {{#with (filterOperations operations 'isMutation,!isInternal' true)}}
     public mutation = {
     {{#each this}}
         "{{path}}": async (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>) => {
@@ -126,7 +126,7 @@ export class Client {
     {{/each}}
     }
     {{/with}}
-    {{#with (filterOperations operations 'isSubscription,isNotInternal' true)}}{{#unless reactNative}}
+    {{#with (filterOperations operations 'isSubscription,!isInternal' true)}}{{#unless reactNative}}
     public subscription = {
     {{#each this}}
         "{{path}}": (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>, cb: (response: Response<{{name}}Response>) => void) => {
@@ -140,7 +140,7 @@ export class Client {
     {{/each}}
     }
     {{/unless}}{{/with}}
-    {{#with (filterOperations operations 'isQuery,isLiveQuery,isNotInternal' true)}}{{#unless reactNative}}
+    {{#with (filterOperations operations 'isQuery,isLiveQuery,!isInternal' true)}}{{#unless reactNative}}
         public liveQuery = {
         {{#each this}}
             "{{path}}": (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>, cb: (response: Response<{{name}}Response>) => void) => {

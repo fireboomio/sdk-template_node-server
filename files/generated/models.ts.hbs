@@ -33,7 +33,7 @@ export interface Injected{{name}}Input {
     {{/if}}
     {{#if (isNotEmpty outputSchema)}}
 export interface {{name}}Response {
-    data?: {{name}}Response
+    data?: {{name}}ResponseData
     errors?: ReadonlyArray<GraphQLError>;
 }
         {{#with outputSchema.properties.data}}

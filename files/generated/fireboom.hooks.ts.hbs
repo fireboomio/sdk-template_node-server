@@ -125,13 +125,13 @@ export interface HooksConfig extends HooksConfiguration<Queries, Mutations, Subs
         revalidate?: (hook: AuthenticationHookRequest<User, InternalClient>) => Promise<AuthenticationResponse<User>>;
         postLogout?: (hook: AuthenticationHookRequest<User, InternalClient>) => Promise<void>;
     };
-		{{#if (isNotEmpty (filterOperations operations 'isQuery,isNotInternal' true))}}
+		{{#if (isNotEmpty (filterOperations operations 'isQuery,!isInternal' true))}}
 				queries?: Queries;
 		{{/if}}
-		{{#if (isNotEmpty (filterOperations operations 'isMutation,isNotInternal' true))}}
+		{{#if (isNotEmpty (filterOperations operations 'isMutation,!isInternal' true))}}
 				mutations?: Mutations;
 		{{/if}}
-		{{#if (isNotEmpty (filterOperations operations 'isSubscription,isNotInternal' true))}}
+		{{#if (isNotEmpty (filterOperations operations 'isSubscription,!isInternal' true))}}
 				subscriptions?: Subscriptions;
 		{{/if}}
         {{#if hasUploadProviders}}
@@ -140,7 +140,7 @@ export interface HooksConfig extends HooksConfiguration<Queries, Mutations, Subs
 }
 
 export interface Queries {
-    {{#each (filterOperations operations 'isQuery,isNotInternal' true)}}
+    {{#each (filterOperations operations 'isQuery,!isInternal' true)}}
         "{{path}}"?: {
         mockResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<{{name}}Response>;
         preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
@@ -153,7 +153,7 @@ export interface Queries {
 }
 
 export interface Mutations {
-    {{#each (filterOperations operations 'isMutation,isNotInternal' true)}}
+    {{#each (filterOperations operations 'isMutation,!isInternal' true)}}
         "{{path}}"?: {
         mockResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<{{name}}Response>;
         preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
@@ -166,7 +166,7 @@ export interface Mutations {
 }
 
 export interface Subscriptions {
-    {{#each (filterOperations operations 'isSubscription,isNotInternal' true)}}
+    {{#each (filterOperations operations 'isSubscription,!isInternal' true)}}
         "{{path}}"?: {
         preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
         {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{name}}Input>;{{/if}}

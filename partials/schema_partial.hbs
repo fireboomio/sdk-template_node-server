@@ -19,5 +19,5 @@
 {{#each items.properties as |schema key|~}}
   {{> schema_partial data=schema key=key isRequired=(stringInArray key required)}}
 {{~/each}}
-},
+}[],
 {{/if~}}
