@@ -1,19 +1,26 @@
 {{#each operations~}}
-    {{#if (isNotEmpty inputSchema)}}
-        {{#if hasInput}}
-export interface Internal{{name}}Input {
+    {{#if (isNotEmpty inputSchema)~}}
+        {{~#if hasInput~}}
+export interface {{name}}Input {
             {{#each inputSchema.properties as |schema key|}}
    {{> schema_partial data=schema.properties key=key isRequired=(stringInArray key inputSchema.required)}}
             {{/each}}
 }
+        {{/if}}
+        {{~#if hasInternalInput~}}
+export interface Internal{{name}}Input {
+{{#each inputSchema.properties as |schema key|}}
+    {{> schema_partial data=schema.properties key=key isRequired=(stringInArray key inputSchema.required)}}
+{{/each}}
+}
         {{/if~}}
-        {{#each inputSchema.definitions as |schema name|}}
+        {{~#each inputSchema.definitions as |schema name|}}
 export interface {{name}} {
             {{#each schema.properties as |schema key|}}
    {{> schema_partial data=schema.properties key=key isRequired=(stringInArray key inputSchema.required)}}
             {{/each}}
 }
-        {{/each}}
+        {{/each~}}
     {{/if~}}
     {{#if (isNotEmpty injectedSchema)}}
         {{#if hasInjectedInput}}
