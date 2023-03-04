@@ -1,7 +1,7 @@
 import type { BaseRequestContext, WunderGraphRequest, WunderGraphResponse, AuthenticationResponse, AuthenticationHookRequest, HooksConfiguration, WsTransportOnConnectionInitResponse, PreUploadHookRequest, PreUploadHookResponse, PostUploadHookRequest, PostUploadHookResponse } from "fireboom-wundersdk/server";
-import { {{> operation_partial operations=operations includeInternal=true includeResponseData=false}} } from "./models"
+import { {{> operation_partial operations=operations includeInternal=true includeInject=true includeResponseData=false}} } from "./models"
 import type { InternalClient } from "./fireboom.internal.client"
-import type { User } from "./fireboom.server"
+import type { User } from "./claims"
 
 // use SKIP to skip the hook and continue the request / response chain without modifying the request / response
 export type SKIP = "skip";
@@ -97,15 +97,6 @@ export interface GlobalHooksConfig {
         }
     }
 }
-
-export type JSONValue =
-    | string
-    | number
-    | boolean
-    | JSONObject
-    | Array<JSONValue>;
-
-export type JSONObject = { [key: string]: JSONValue };
 
 export interface HookRequest extends BaseRequestContext<User, InternalClient> {}
 

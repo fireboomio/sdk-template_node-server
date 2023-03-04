@@ -9,13 +9,8 @@
  * @example
  * prisma.db1.queryRaw(`SELECT * from Pet`, {}).then(console.log).catch(console.error)
  */
-
 import fetch from '@web-std/fetch'
-
-export declare type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
-export declare type JSONObject = {
-  [key: string]: JSONValue;
-};
+import { JSONObject } from './models'
 
 export type PrismaDataSource = {
   queryRaw<T = unknown>(query: string, values: JSONObject): Promise<T>

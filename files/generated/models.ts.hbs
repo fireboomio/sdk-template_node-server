@@ -31,12 +31,12 @@ export interface Injected{{name}}Input {
 }
         {{/if~}}
     {{/if}}
-    {{#if (isNotEmpty outputSchema)}}
+    {{#if (isNotEmpty responseSchema)}}
 export interface {{name}}Response {
     data?: {{name}}ResponseData
     errors?: ReadonlyArray<GraphQLError>;
 }
-        {{#with outputSchema.properties.data}}
+        {{#with responseSchema.properties.data}}
 export interface {{name}}ResponseData {
             {{#each properties as |schema key|}}
     {{> schema_partial data=schema.properties key=key isRequired=(stringInArray key required)}}

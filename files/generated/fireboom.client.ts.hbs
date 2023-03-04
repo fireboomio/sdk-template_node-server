@@ -1,8 +1,7 @@
-import fetch from '@web-std/fetch'
-import type { RequestOptions, UserListener, Response } from "fireboom-wundersdk/server";
-
-import type { {{> operation_partial operations=operations includeInternal=false includeResponseData=false}} } from "./models";
-import type { User, Role } from "./interface";
+// import fetch from '@web-std/fetch'
+import type { RequestOptions, UserListener, Response } from 'fireboom-wundersdk/server';
+import type { {{> operation_partial operations=operations includeInternal=false includeInject=false includeResponseData=false}} } from './models'
+import type { User, Role } from './claims'
 
 import {
 	Client as WunderGraphClient,
@@ -12,8 +11,8 @@ import {
     LogoutOptions
 } from "fireboom-wundersdk/client";
 
-export const FIREBOOM_S3_ENABLED = {{isNotEmpty s3Providers}};
-export const FIREBOOM_AUTH_ENABLED = {{isNotEmpty authProviders}};
+export const FIREBOOM_S3_ENABLED = {{isNotEmpty s3Providers}}
+export const FIREBOOM_AUTH_ENABLED = {{isNotEmpty authProviders}}
 
 {{#if (isNotEmpty s3Providers)}}
 export interface UploadResponse { key: string }
@@ -24,7 +23,6 @@ export enum S3Provider {
     {{/each}}
 }
 
-// @ts-ignore
 export type UploadConfig = UploadRequestOptions<S3Provider>
 {{/if}}
 
@@ -52,7 +50,7 @@ export class Client {
             baseURL,
             applicationHash: "{{ applicationHash }}",
             sdkVersion: "{{ sdkVersion }}",
-            customFetch: fetch,
+            // customFetch: fetch,
             ...rest
         });
         this.user = null;
@@ -81,7 +79,7 @@ export class Client {
             }
         }
     };
-		private resultToResponse = <TResponse>(result: Result<any>): Response<TResponse> => {
+    private resultToResponse = <TResponse>(result: Result<any>): Response<TResponse> => {
     if (result.error) {
       return {
         status: 'error',
@@ -100,9 +98,9 @@ export class Client {
     {{#if (isNotEmpty this)}}
     public query = {
         {{#each this}}
-        "{{path}}": async (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>) => {
+        '{{path}}': async (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>) => {
             const result = await this._client.query({
-                operationName: "{{name}}",
+                operationName: '{{name}}',
                 input: options.input,
                 abortSignal: options.abortSignal,
             })
@@ -115,9 +113,9 @@ export class Client {
     {{#with (filterOperations operations 'isMutation,!isInternal' true)}}
     public mutation = {
     {{#each this}}
-        "{{path}}": async (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>) => {
+        '{{path}}': async (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>) => {
             const result =  await this._client.mutate({
-                operationName: "{{path}}",
+                operationName: '{{name}}',
                 input: options.input,
                 abortSignal: options.abortSignal,
             })
@@ -129,10 +127,10 @@ export class Client {
     {{#with (filterOperations operations 'isSubscription,!isInternal' true)}}{{#unless reactNative}}
     public subscription = {
     {{#each this}}
-        "{{path}}": (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>, cb: (response: Response<{{name}}Response>) => void) => {
+        '{{path}}': (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>, cb: (response: Response<{{name}}Response>) => void) => {
             return this._client.subscribe({
-                operationName: "{{name}}",
-                isLiveQuery: false,
+                operationName: '{{name}}',
+                liveQuery: false,
                 input: options.input,
                 abortSignal: options.abortSignal,
             }, (result) => cb(this.resultToResponse<{{name}}Response>(result)));
@@ -146,7 +144,7 @@ export class Client {
             "{{path}}": (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>, cb: (response: Response<{{name}}Response>) => void) => {
                 return this._client.subscribe({
                     operationName: "{{name}}",
-                    isLiveQuery: true,
+                    liveQuery: true,
                     input: options.input,
                     abortSignal: options.abortSignal,
                 }, (result) => cb(this.resultToResponse<{{name}}Response>(result)));
@@ -154,10 +152,9 @@ export class Client {
         {{/each}}
         }
     {{/unless}}{{/with}}
-		{{#if (isNotEmpty s3Providers)}}
+	{{#if (isNotEmpty s3Providers)}}
     public uploadFiles = async (config: UploadConfig): Promise<Response<UploadResponse[]>> => {
       try {
-        // @ts-ignore
         const result = await this._client.uploadFiles(config);
         return {
           status: "ok",
@@ -172,7 +169,7 @@ export class Client {
     };
     {{/if}}
 
-		public fetchUser = async (revalidate?: boolean): Promise<User | null> => {
+    public fetchUser = async (revalidate?: boolean): Promise<User | null> => {
 		try {
 			const user = await this._client.fetchUser<User>({
         revalidate

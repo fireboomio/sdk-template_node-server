@@ -38,7 +38,7 @@ export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() =>
             httpTransport: {
         {{#each hookConf.httpTransport as |hook hookName|}}
             {{#if hook.enableForAllOperations}}
-                {{hookName}}: {
+                {{lowerFirst hookName}}: {
                     hook: global_{{hookName}},
                 },
             {{/if}}

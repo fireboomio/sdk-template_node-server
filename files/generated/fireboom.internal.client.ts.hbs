@@ -1,25 +1,16 @@
-// @ts-nocheck
-import type { OperationArgsWithInput, InternalClient as BaseClient  } from "fireboom-wundersdk/server";
-import { {{> operation_partial operations=operations includeInternal=false includeResponseData=false}} } from "./models"
+import type { OperationArgsWithInput, InternalClient as BaseClient  } from 'fireboom-wundersdk/server'
+import { {{> operation_partial operations=operations includeInternal=true includeInject=false includeResponseData=false}} } from './models'
 
-export interface Queries  {
-{{#with (filterOperations operations 'isQuery' true)}}
-  {{#each this}}
-    "{{path}}": ({{#if hasInput}}options: OperationArgsWithInput<Internal{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
-  {{/each}}
-{{else}}
-  queries: {};
-{{/with}}
+export interface Queries {
+{{#each (filterOperations operations 'isQuery' true)}}
+  '{{path}}': ({{#if hasInternalInput}}options: OperationArgsWithInput<Internal{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
+{{/each}}
 }
 
-export interface Mutations  {
-{{#with (filterOperations operations 'isMutation' true)}}
-  {{#each this}}
-    "{{path}}": ({{#if hasInput}}options: OperationArgsWithInput<{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
-  {{/each}}
-{{else}}
-  mutations: {};
-{{/with}}
+export interface Mutations {
+{{#each (filterOperations operations 'isMutation' true)}}
+  '{{path}}': ({{#if hasInternalInput}}options: OperationArgsWithInput<{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
+{{/each}}
 }
 
 export interface InternalClient extends BaseClient<Queries, Mutations> {}
