@@ -1,3 +1,4 @@
+import fetch from "@web-std/fetch";
 import {
 	Client,
 	ClientConfig,
@@ -55,6 +56,7 @@ export const defaultClientConfig: ClientConfig = {
     applicationHash: "{{applicationHash}}",
     baseURL: "{{baseURL}}",
     sdkVersion: "{{sdkVersion}}",
+    customFetch: fetch,
 }
 
 export const operationMetadata: OperationMetadata = {

@@ -9,7 +9,7 @@ export interface {{name}}Input {
         {{/if}}
         {{~#if hasInternalInput~}}
 export interface Internal{{name}}Input {
-{{#each inputSchema.properties as |schema key|}}
+{{#each internalSchema.properties as |schema key|}}
     {{> schema_partial data=schema.properties key=key isRequired=(stringInArray key inputSchema.required)}}
 {{/each}}
 }

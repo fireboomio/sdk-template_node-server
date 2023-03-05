@@ -9,7 +9,7 @@ export interface Queries {
 
 export interface Mutations {
 {{#each (filterOperations operations 'isMutation' true)}}
-  '{{path}}': ({{#if hasInternalInput}}options: OperationArgsWithInput<{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
+  '{{path}}': ({{#if hasInternalInput}}options: OperationArgsWithInput<Internal{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
 {{/each}}
 }
 
