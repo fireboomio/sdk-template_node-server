@@ -7,19 +7,19 @@ import type { InternalClient } from './generated/fireboom.internal.client';
     {{~#if (equalAny hookType "Global")~}}
         {{~#each hookConf.httpTransport as |hook hookName|~}}
             {{~#if hook.enableForAllOperations~}}
-import global_{{hookName}} from '{{hook.tsPath}}';
+import global_{{hookName}} from './global/{{hook.tsPath}}';
             {{/if~}}
         {{~/each~}}
     {{~/if~}}
     {{~#if (equalAny hookType "Authentication")~}}
         {{~#each hookConf.tsPathMap as |tsPath hookName|~}}
-import {{hookName}} from '{{tsPath}}';
+import {{hookName}} from './auth/{{tsPath}}';
         {{/each~}}
     {{~/if~}}
     {{~#if (equalAny hookType "Queries,Mutations")~}}
         {{~#each hookConf as |operationConf operationName|~}}
             {{~#each operationConf.tsPathMap as |tsPath hookName|~}}
-import {{replaceSpecial operationName "$"}}_{{hookName}} from '{{tsPath}}';
+import {{replaceSpecial operationName "$"}}_{{hookName}} from './hooks/{{tsPath}}';
             {{/each~}}
         {{~/each~}}
     {{~/if~}}
