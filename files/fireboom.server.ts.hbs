@@ -19,7 +19,7 @@ import {{hookName}} from './auth/{{tsPath}}';
     {{~#if (equalAny hookType "Queries,Mutations")~}}
         {{~#each hookConf as |operationConf operationName|~}}
             {{~#each operationConf.tsPathMap as |tsPath hookName|~}}
-import {{replaceSpecial operationName "$"}}_{{hookName}} from './hooks/{{tsPath}}';
+import {{replaceSpecial operationName "$"}}_{{hookName}} from './hooks{{tsPath}}';
             {{/each~}}
         {{~/each~}}
     {{~/if~}}
