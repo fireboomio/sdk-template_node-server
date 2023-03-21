@@ -4,11 +4,11 @@ import type function_{{name}} from '../operations/{{path}}'
     {{/each}}
     {{~#if (isNotEmpty this)}}
 import type { ExtractResponse } from 'fireboom-wundersdk/operations'
-    {{~/if}}
+    {{/if}}
 {{~/with}}
 {{#each operations~}}
     {{#if (isNotEmpty inputSchema)~}}
-        {{~#if hasInput~}}
+        {{#if hasInput~}}
 export interface {{name}}Input {
             {{#each inputSchema.properties as |schema key|}}
    {{> schema_partial data=schema.properties key=key isRequired=(stringInArray key inputSchema.required)}}
