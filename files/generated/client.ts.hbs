@@ -5,14 +5,15 @@ import {
 	CreateClientConfig,
 	User,
 	UploadRequestOptions,
-	UploadRequestOptionsWithProfile,
 	OperationMetadata,
 	OperationsDefinition,
 	OperationRequestOptions,
 	SubscriptionRequestOptions,
 	SubscriptionEventHandler,
-	FetchUserRequestOptions
-	// UploadValidationOptions
+	FetchUserRequestOptions,
+	UploadValidationOptions,
+    ExtractProfileName,
+    ExtractMeta
 } from "fireboom-wundersdk/client";
 
 import type { CustomClaims, Role } from './claims'
@@ -25,16 +26,40 @@ export const WUNDERGRAPH_AUTH_ENABLED = {{isNotEmpty authProviders}}
 export interface UploadResponse { key: string }
 
 // TODO: missing upload profiles
-
 type S3Providers ={
-	{{#each s3Providers}}
-	{{name}}: '{{name}}'
-	{{/each}}
+{{#each s3Providers}}
+    {{name}}: {
+    hasProfiles: {{#if uploadProfiles}}true{{else}}false{{/if}},
+    profiles: {
+    {{#each uploadProfiles}}
+        {{@key}}: any
+    {{/each}}
+    }
+    }
+{{/each}}
 }
 
 const S3UploadProviderData: { [provider: string]: { [profile: string]: UploadValidationOptions } } = {
-	{{#each s3Providers }}
-	{{name}}: '{{name}}',
+	{{#each s3Providers}}
+    {{name}}: {
+        {{#each uploadProfiles}}
+            {{@key}}: {
+                requireAuthentication: {{#if this.requireAuthentication}}true{{else}}false{{/if}},
+                {{#if this.maxAllowedUploadSizeBytes includeZero=true}}
+                maxAllowedUploadSizeBytes: {{this.maxAllowedUploadSizeBytes}},
+                {{/if}}
+                {{#if this.maxAllowedFiles includeZero=true}}
+                maxAllowedFiles: {{this.maxAllowedFiles}},
+                {{/if}}
+                {{#if this.allowedMimeTypes}}
+                allowedMimeTypes: [{{#each this.allowedMimeTypes}}'{{this}}',{{/each}}],
+                {{/if}}
+                {{#if this.allowedFileExtensions}}
+                allowedFileExtensions: [{{#each this.allowedFileExtensions}}'{{this}}',{{/each}}],
+                {{/if}}
+            },
+        {{/each}}
+    },
 	{{/each}}
 }
 {{/if}}
@@ -96,16 +121,20 @@ export class WunderGraphClient extends Client {
 		return super.subscribe(options, cb);
 	}
 	{{#if (isNotEmpty s3Providers)}}
-	public async uploadFiles<
-		ProviderName extends Extract<keyof S3Providers, string>,
-		any, any
-	>(
-		config: any
-	) {
-		{{!-- const profile = config.profile ? S3UploadProviderData[config.provider][config.profile as string] : undefined; --}}
-		return super.uploadFiles(config, undefined);
-	}
-	{{/if}}
+    public async uploadFiles<
+        ProviderName extends Extract<keyof S3Providers, string>,
+        ProfileName extends ExtractProfileName<S3Providers[ProviderName]['profiles']> = ExtractProfileName<
+        S3Providers[ProviderName]['profiles']
+        >,
+        Meta extends ExtractMeta<S3Providers[ProviderName]['profiles'], ProfileName> = ExtractMeta<
+        S3Providers[ProviderName]['profiles'],
+        ProfileName
+        >
+    >(config: UploadRequestOptions<ProviderName, ProfileName, Meta>) {
+        const profile = config.profile ? S3UploadProviderData[config.provider][config.profile as string] : undefined;
+        return super.uploadFiles(config, profile);
+    }
+    {{/if}}
 	public login(authProviderID: Operations['authProvider'], redirectURI?: string) {
 		return super.login(authProviderID, redirectURI);
 	}

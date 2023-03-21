@@ -168,7 +168,7 @@ export interface Subscriptions {
 }
 
 export interface Uploads {
-    {{#each uploadProviders}}
+    {{#each s3Providers}}
         {{name}}?: {
             {{#each uploadProfiles}}
                 {{@key}}?: {

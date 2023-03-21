@@ -1,6 +1,18 @@
 import { configureWunderGraphServer } from 'fireboom-wundersdk/server';
 import type { HooksConfig } from './generated/fireboom.hooks';
 import type { InternalClient } from './generated/fireboom.internal.client';
+{{#each s3Providers}}
+    {{#if uploadProfiles}}
+        {{#each uploadProfiles}}
+            {{#if hooks.preUpload}}
+import {{../name}}${{@key}}$preUpload from './uploads/{{../name}}/{{@key}}/preUpload';
+            {{/if}}
+            {{#if hooks.postUpload}}
+import {{../name}}${{@key}}$postUpload from './uploads/{{../name}}/{{@key}}/postUpload';
+            {{/if}}
+        {{/each}}
+    {{/if}}
+{{/each}}
 
 {{#each hooksConfig as |hookConf hookType|~}}
     {{~#if (equalAny hookType "Global")~}}
@@ -62,6 +74,24 @@ export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() =>
     {{/if}}
         },
 {{/each}}
+        uploads: {
+        {{#each s3Providers}}
+            {{#if uploadProfiles}}
+            {{name}}: {
+                {{#each uploadProfiles}}
+                {{@key}}: {
+                    {{#if hooks.preUpload}}
+                    preUpload: {{../name}}${{@key}}$preUpload,
+                    {{/if}}
+                    {{#if hooks.postUpload}}
+                    postUpload: {{../name}}${{@key}}$postUpload
+                    {{/if}}
+                },
+                {{/each}}
+            },
+            {{/if}}
+        {{/each}}
+        },
     },
     graphqlServers: [
 {{#each dataSources}}
