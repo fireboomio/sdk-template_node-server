@@ -3,13 +3,13 @@ import { {{> operation_partial operations=operations includeInternal=true includ
 
 export interface Queries {
 {{#each (filterOperations operations 'isQuery' true)}}
-  '{{path}}': ({{#if hasInternalInput}}options: OperationArgsWithInput<Internal{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
+  '{{name}}': ({{#if hasInternalInput}}options: OperationArgsWithInput<Internal{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
 {{/each}}
 }
 
 export interface Mutations {
 {{#each (filterOperations operations 'isMutation' true)}}
-  '{{path}}': ({{#if hasInternalInput}}options: OperationArgsWithInput<Internal{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
+  '{{name}}': ({{#if hasInternalInput}}options: OperationArgsWithInput<Internal{{name}}Input>{{/if}}) => Promise<{{name}}Response>;
 {{/each}}
 }
 

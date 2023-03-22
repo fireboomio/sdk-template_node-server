@@ -4,19 +4,19 @@ import { {{> operation_partial operations=operations includeInternal=true includ
 
 export interface Queries {
 {{#each (filterOperations operations 'isQuery' true)}}
-  '{{path}}':  { input: {{#if hasInternalInput}}Internal{{name}}Input{{ else }}never{{/if}}, response: {{ name }}Response };
+  '{{name}}':  { input: {{#if hasInternalInput}}Internal{{name}}Input{{ else }}never{{/if}}, response: {{ name }}Response };
 {{/each}}
 }
 
 export interface Mutations {
 {{#each (filterOperations operations 'isMutation' true)}}
-  '{{path}}':  { input: {{#if hasInternalInput}}Internal{{name}}Input{{ else }}never{{/if}}, response: {{ name }}Response };
+  '{{name}}':  { input: {{#if hasInternalInput}}Internal{{name}}Input{{ else }}never{{/if}}, response: {{ name }}Response };
 {{/each}}
 }
 
 export interface Subscriptions {
 {{#each (filterOperations operations 'isSubscription' true)}}
-  '{{path}}':  { input: {{#if hasInternalInput}}Internal{{name}}Input{{ else }}never{{/if}}, response: {{ name }}Response };
+  '{{name}}':  { input: {{#if hasInternalInput}}Internal{{name}}Input{{ else }}never{{/if}}, response: {{ name }}Response };
 {{/each}}
 }
 
