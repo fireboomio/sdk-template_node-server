@@ -158,12 +158,14 @@ export interface Mutations {
 
 export interface Subscriptions {
     {{#each (filterOperations operations 'isSubscription,!isInternal' true)}}
+    {{#equal engine 0}}
         "{{path}}"?: {
         preResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<void>;
         {{#if hasInternalInput}} mutatingPreResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}}) => Promise<Injected{{name}}Input>;{{/if}}
         postResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{name}}Response>) => Promise<void>;
         mutatingPostResolve?: (hook: {{#if hasInternalInput}}HookRequestWithInput<Injected{{name}}Input>{{else}}HookRequest{{/if}} & HookRequestWithResponse<{{name}}Response>) => Promise<{{name}}Response>;
         }
+      {{/equal}}
     {{/each}}
 }
 
