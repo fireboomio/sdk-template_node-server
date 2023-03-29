@@ -194,4 +194,4 @@ export type LiveQueries = {
 {{/each}}
 }
 
-export interface Operations extends OperationsDefinition<Queries, Mutations, Subscriptions, Role,{{#if hasS3Providers}}S3Providers{{else}}{}{{/if}}{{#if hasAuthProviders}},keyof typeof AuthProviderId{{/if}}> {}
+export interface Operations extends OperationsDefinition<Queries, Mutations, Subscriptions, Role,{{#if (isNotEmpty s3Providers)}}S3Providers{{else}}{}{{/if}}{{#if (isNotEmpty authProviders)}},keyof typeof AuthProviderId{{/if}}> {}
