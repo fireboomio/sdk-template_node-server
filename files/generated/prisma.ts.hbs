@@ -72,7 +72,7 @@ function createPrismaSDK(dataSourceId: string | number): PrismaDataSource {
       "body": JSON.stringify(body),
       "method": "POST"
     }).then(resp => resp.json()).then(res => {
-      return flattenPrismaResult(res) as T
+      return flattenPrismaResult(res) as unknown as T
     })
   }
   return { queryRaw }
