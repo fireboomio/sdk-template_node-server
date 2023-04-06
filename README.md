@@ -1,1 +1,1 @@
-# NodeJs hook server SDK template for fireboom
+# Go hook server SDK template for fireboom

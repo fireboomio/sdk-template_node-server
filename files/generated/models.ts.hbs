@@ -23,11 +23,13 @@ export interface Internal{{name}}Input {
 }
         {{/if~}}
         {{~#each inputSchema.definitions as |schema name|}}
+{{#if (isAbsent onceMap (fmtSprintf 'models_%s' name) schema)}}
 export interface {{name}} {
             {{#each schema.properties as |schema key|}}
    {{> schema_partial data=schema.properties key=key isRequired=(stringInArray key inputSchema.required)}}
             {{/each}}
 }
+{{/if}}
         {{/each~}}
     {{/if~}}
 
