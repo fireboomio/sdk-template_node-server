@@ -2,107 +2,122 @@ import { configureWunderGraphServer } from 'fireboom-wundersdk/server';
 import type { HooksConfig } from './generated/fireboom.hooks';
 import type { InternalClient } from './generated/fireboom.internal.client';
 {{#each s3Providers}}
-    {{#if uploadProfiles}}
-        {{#each uploadProfiles}}
-            {{#if hooks.preUpload}}
+  {{#if uploadProfiles}}
+    {{#each uploadProfiles}}
+      {{#if hooks.preUpload}}
 import {{../name}}${{@key}}$preUpload from './uploads/{{../name}}/{{@key}}/preUpload';
-            {{/if}}
-            {{#if hooks.postUpload}}
+      {{/if}}
+      {{#if hooks.postUpload}}
 import {{../name}}${{@key}}$postUpload from './uploads/{{../name}}/{{@key}}/postUpload';
-            {{/if}}
-        {{/each}}
-    {{/if}}
+      {{/if}}
+    {{/each}}
+  {{/if}}
 {{/each}}
 
 {{#each hooksConfig as |hookConf hookType|~}}
-    {{~#if (equalAny hookType "Global")~}}
-        {{~#each hookConf.httpTransport as |hook hookName|~}}
-            {{~#if hook.enableForAllOperations~}}
+  {{~#if (equalAny hookType "Global")~}}
+    {{~#each hookConf.httpTransport as |hook hookName|~}}
+      {{~#if hook.enableForAllOperations~}}
 import global_{{hookName}} from './global/{{hook.tsPath}}';
-            {{/if~}}
-        {{~/each~}}
-    {{~/if~}}
-    {{~#if (equalAny hookType "Authentication")~}}
-        {{~#each hookConf.tsPathMap as |tsPath hookName|~}}
+      {{/if~}}
+    {{~/each~}}
+    {{~#each hookConf.wsTransport as |hook hookName|~}}
+      {{~#if hook.enableForAllOperations~}}
+import global_{{hookName}} from './global/{{hook.tsPath}}';
+      {{/if~}}
+    {{~/each~}}
+  {{~/if~}}
+  {{~#if (equalAny hookType "Authentication")~}}
+    {{~#each hookConf.tsPathMap as |tsPath hookName|~}}
 import {{hookName}} from './auth/{{tsPath}}';
-        {{/each~}}
-    {{~/if~}}
-    {{~#if (equalAny hookType "Queries,Mutations")~}}
-        {{~#each hookConf as |operationConf operationName|~}}
-            {{~#each operationConf.tsPathMap as |tsPath hookName|~}}
+    {{/each~}}
+  {{~/if~}}
+  {{~#if (equalAny hookType "Queries,Mutations,Subscriptions")~}}
+    {{~#each hookConf as |operationConf operationName|~}}
+      {{~#each operationConf.tsPathMap as |tsPath hookName|~}}
 import {{replaceSpecial operationName "$"}}_{{hookName}} from './hooks{{tsPath}}';
-            {{/each~}}
-        {{~/each~}}
-    {{~/if~}}
+      {{/each~}}
+    {{~/each~}}
+  {{~/if~}}
 {{~/each~}}
 {{#each dataSources}}
-    {{#if isCustomized}}
+  {{#if isCustomized}}
 import {{apiNameSpace}} from './customize/{{apiNameSpace}}';
-    {{/if}}
+  {{/if}}
 {{/each}}
 
 export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() => ({
-    hooks: {
+  hooks: {
 {{#each hooksConfig as |hookConf hookType|}}
-        {{lowerFirst hookType}}: {
-    {{#if (equalAny hookType "Global")}}
-            httpTransport: {
-        {{#each hookConf.httpTransport as |hook hookName|}}
-            {{#if hook.enableForAllOperations}}
-                {{lowerFirst hookName}}: {
-                    hook: global_{{hookName}},
-                },
-            {{/if}}
-        {{/each}}
-            }
-    {{/if}}
-    {{#if (equalAny hookType "Authentication")}}
-        {{#each hookConf.tsPathMap as |tsPath hookName|}}
-            {{hookName}},
-        {{/each}}
-    {{/if}}
-    {{#if (equalAny hookType "Queries,Mutations")}}
-        {{#each hookConf as |operationConf operationName|}}
-            {{#if (isNotEmpty operationConf.tsPathMap)}}
-            "{{operationName}}": {
-            {{#each operationConf.tsPathMap as |tsPath hookName|}}
-                {{hookName}}: {{replaceSpecial operationName "$"}}_{{hookName}},
-            {{/each}}
-            },
-            {{/if}}
-        {{/each}}
-    {{/if}}
+    {{lowerFirst hookType}}: {
+  {{#if (equalAny hookType "Global")}}
+      httpTransport: {
+    {{#each hookConf.httpTransport as |hook hookName|}}
+      {{#if hook.enableForAllOperations}}
+        {{lowerFirst hookName}}: {
+          hook: global_{{hookName}},
         },
-{{/each}}
-        uploads: {
-        {{#each s3Providers}}
-            {{#if uploadProfiles}}
-            {{name}}: {
-                {{#each uploadProfiles}}
-                {{@key}}: {
-                    {{#if hooks.preUpload}}
-                    preUpload: {{../name}}${{@key}}$preUpload,
-                    {{/if}}
-                    {{#if hooks.postUpload}}
-                    postUpload: {{../name}}${{@key}}$postUpload
-                    {{/if}}
-                },
-                {{/each}}
-            },
-            {{/if}}
-        {{/each}}
+      {{/if}}
+    {{/each}}
+      },
+      wsTransport: {
+    {{#each hookConf.wsTransport as |hook hookName|}}
+      {{#if hook.enableForAllOperations}}
+        {{lowerFirst hookName}}: {
+          hook: global_{{hookName}},
+          enableForDataSources: []
         },
+      {{~/if}}
+    {{/each}}
+      }
+  {{/if}}
+  {{#if (equalAny hookType "Authentication")}}
+    {{#each hookConf.tsPathMap as |tsPath hookName|}}
+      {{hookName}},
+    {{/each}}
+  {{/if}}
+  {{#if (equalAny hookType "Queries,Mutations,Subscriptions")}}
+    {{#each hookConf as |operationConf operationName|~}}
+      {{#if (isNotEmpty operationConf.tsPathMap)}}
+      "{{operationName}}": {
+      {{#each operationConf.tsPathMap as |tsPath hookName|}}
+        {{hookName}}: {{replaceSpecial operationName "$"}}_{{hookName}},
+      {{/each}}
+      },
+      {{/if}}
+    {{/each}}
+  {{/if}}
     },
-    graphqlServers: [
-{{#each dataSources}}
-    {{#if isCustomized}}
-        {
-            apiNamespace: "{{apiNameSpace}}",
-            serverName: "{{apiNameSpace}}",
-            enableGraphQLEndpoint: true,
-            schema: {{apiNameSpace}}
-        },
-    {{/if}}
 {{/each}}
-    ]
+    uploads: {
+    {{#each s3Providers}}
+      {{#if uploadProfiles}}
+      {{name}}: {
+        {{#each uploadProfiles}}
+        {{@key}}: {
+          {{#if hooks.preUpload}}
+          preUpload: {{../name}}${{@key}}$preUpload,
+          {{/if}}
+          {{#if hooks.postUpload}}
+          postUpload: {{../name}}${{@key}}$postUpload
+          {{/if}}
+        },
+        {{/each}}
+      },
+      {{/if}}
+    {{/each}}
+    },
+  },
+  graphqlServers: [
+{{#each dataSources}}
+  {{#if isCustomized}}
+    {
+      apiNamespace: "{{apiNameSpace}}",
+      serverName: "{{apiNameSpace}}",
+      enableGraphQLEndpoint: true,
+      schema: {{apiNameSpace}}
+    },
+  {{/if}}
+{{/each}}
+  ]
 }));
