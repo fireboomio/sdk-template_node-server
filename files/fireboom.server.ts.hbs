@@ -65,7 +65,9 @@ export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() =>
       {{#if hook.enableForAllOperations}}
         {{lowerFirst hookName}}: {
           hook: global_{{hookName}},
-          enableForDataSources: []
+          enableForDataSources: [{{#each dataSources~}}
+          "{{~apiNameSpace}}"{{#unless @last}}, {{/unless~}}
+          {{~/each}}]
         },
       {{~/if}}
     {{/each}}

@@ -22,12 +22,12 @@ export type WUNDERGRAPH_OPERATION =
 ;
 
 export type DATA_SOURCES =
-{{~#if (isNotEmpty datasourceConfigurations)~}}
-    {{~#each datasourceConfigurations~}}
-        {{id}}
+{{~#if (isNotEmpty dataSources)~}}
+    {{~#each dataSources~}}
+        '{{apiNameSpace}}'
         {{~#unless @last}} | {{/unless~}}
     {{~/each~}}
-    {{~else~}}
+{{~else~}}
     never
 {{~/if~}}
 ;
