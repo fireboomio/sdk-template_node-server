@@ -5,10 +5,10 @@ import type { InternalClient } from './generated/fireboom.internal.client';
   {{#if uploadProfiles}}
     {{#each uploadProfiles}}
       {{#if hooks.preUpload}}
-import {{../name}}${{@key}}$preUpload from './uploads/{{../name}}/{{@key}}/preUpload';
+import {{../name}}__{{@key}}__preUpload from './uploads/{{../name}}/{{@key}}/preUpload';
       {{/if}}
       {{#if hooks.postUpload}}
-import {{../name}}${{@key}}$postUpload from './uploads/{{../name}}/{{@key}}/postUpload';
+import {{../name}}__{{@key}}__postUpload from './uploads/{{../name}}/{{@key}}/postUpload';
       {{/if}}
     {{/each}}
   {{/if}}
@@ -35,7 +35,7 @@ import {{hookName}} from './auth/{{tsPath}}';
   {{~#if (equalAny hookType "Queries,Mutations,Subscriptions")~}}
     {{~#each hookConf as |operationConf operationName|~}}
       {{~#each operationConf.tsPathMap as |tsPath hookName|~}}
-import {{replaceSpecial operationName "$"}}_{{hookName}} from './hooks{{tsPath}}';
+import {{replaceSpecial operationName "__"}}_{{hookName}} from './hooks{{tsPath}}';
       {{/each~}}
     {{~/each~}}
   {{~/if~}}
@@ -83,7 +83,7 @@ export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() =>
       {{#if (isNotEmpty operationConf.tsPathMap)}}
       "{{operationName}}": {
       {{#each operationConf.tsPathMap as |tsPath hookName|}}
-        {{hookName}}: {{replaceSpecial operationName "$"}}_{{hookName}},
+        {{hookName}}: {{replaceSpecial operationName "__"}}_{{hookName}},
       {{/each}}
       },
       {{/if}}
@@ -98,10 +98,10 @@ export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() =>
         {{#each uploadProfiles}}
         {{@key}}: {
           {{#if hooks.preUpload}}
-          preUpload: {{../name}}${{@key}}$preUpload,
+          preUpload: {{../name}}__{{@key}}__preUpload,
           {{/if}}
           {{#if hooks.postUpload}}
-          postUpload: {{../name}}${{@key}}$postUpload
+          postUpload: {{../name}}__{{@key}}__postUpload
           {{/if}}
         },
         {{/each}}
