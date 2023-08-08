@@ -22,9 +22,9 @@ export type WUNDERGRAPH_OPERATION =
 ;
 
 export type DATA_SOURCES =
-{{~#if (isNotEmpty dataSources)~}}
-    {{~#each dataSources~}}
-        '{{apiNameSpace}}'
+{{~#if hooksConfiguration.global.wsTransport~}}
+    {{~#each hooksConfiguration.global.wsTransport~}}
+        '{{this}}'
         {{~#unless @last}} | {{/unless~}}
     {{~/each~}}
 {{~else~}}

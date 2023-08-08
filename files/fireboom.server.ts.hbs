@@ -67,16 +67,10 @@ export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() =>
   {{/if~}}
   {{~#if global.wsTransport}}
       wsTransport: {
-      {{#each global.wsTransport}}
-          {{#if hook.enableForAllOperations}}
-              {{lowerFirst hookName}}: {
-              hook: global_{{hookName}},
-              enableForDataSources: [{{#each dataSources~}}
-                  "{{~apiNameSpace}}"{{#unless @last}}, {{/unless~}}
-              {{~/each}}]
-              },
-          {{~/if}}
-      {{/each}}
+        OnConnectionInit: {
+              hook: global_OnConnectionInit,
+              enableForDataSources: [{{global.wsTransport}}]
+        },
       },
   {{/if~}}
     },
