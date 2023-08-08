@@ -1,0 +1,8 @@
+{
+  "name": "node-server",
+  "author": "fireboom",
+  "version": "0.1.0",
+  "description": "这里是sdk的描述",
+  "outputPath": "./custom-ts",
+  "enabled": true
+}

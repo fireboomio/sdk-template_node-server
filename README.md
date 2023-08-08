@@ -1,0 +1,1 @@
+# Node hook server SDK template for fireboom

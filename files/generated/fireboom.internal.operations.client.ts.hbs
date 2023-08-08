@@ -1,0 +1,29 @@
+
+import type { OperationsClientType } from 'fireboom-wundersdk/server'
+import { {{> operation_partial operations=operations includeInternal=true includeResponseData=false}} } from "./models"
+
+export interface Queries {
+{{#each operations}}
+    {{#if isQuery}}
+    '{{name}}':  { input: {{#if hasInternalInput}}{{name}}InternalInput{{ else }}never{{/if}}, response: {{ name }}Response };
+    {{/if}}
+{{/each}}
+}
+
+export interface Mutations {
+{{#each operations}}
+    {{#if isMutation}}
+    '{{name}}':  { input: {{#if hasInternalInput}}{{name}}InternalInput{{ else }}never{{/if}}, response: {{ name }}Response };
+    {{/if}}
+{{/each}}
+}
+
+export interface Subscriptions {
+{{#each operations}}
+    {{#if isSubscription}}
+    '{{name}}':  { input: {{#if hasInternalInput}}{{name}}InternalInput{{ else }}never{{/if}}, response: {{ name }}Response };
+    {{/if}}
+{{/each}}
+}
+
+export type InternalOperations = OperationsClientType<Queries, Mutations, Subscriptions>

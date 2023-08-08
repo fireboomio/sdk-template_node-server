@@ -1,0 +1,220 @@
+// import fetch from '@web-std/fetch'
+import type { RequestOptions, UserListener, Response } from 'fireboom-wundersdk/server';
+import type { {{> operation_partial operations=operations includeInternal=false includeResponseData=false}} } from './models'
+import type { User, Role } from './claims'
+
+import {
+	Client as WunderGraphClient,
+	ClientConfig,
+	UploadRequestOptions,
+	ClientResponse as Result,
+    LogoutOptions
+} from "fireboom-wundersdk/client";
+
+export const FIREBOOM_S3_ENABLED = {{isNotEmpty s3Providers}}
+export const FIREBOOM_AUTH_ENABLED = {{isNotEmpty authProviders}}
+
+{{#if (isNotEmpty s3Providers)}}
+export interface UploadResponse { key: string }
+
+export enum S3Provider {
+    {{#each s3Providers }}
+    "{{name}}" = "{{name}}",
+    {{/each}}
+}
+
+export type UploadConfig = UploadRequestOptions<S3Provider>
+{{/if}}
+
+{{#if authProviders}}
+export enum AuthProviderId {
+    {{#each authProviders}}
+    "{{id}}" = "{{id}}",
+    {{/each}}
+}
+
+export interface AuthProvider {
+    id: AuthProviderId;
+    login: (redirectURI?: string) => void;
+}
+{{/if}}
+
+export class Client {
+    constructor(config: Partial<ClientConfig> = {}) {
+        const {
+            baseURL = "{{ baseURL }}",
+            ...rest
+        } = config
+
+        this._client = new WunderGraphClient({
+            baseURL,
+            applicationHash: "{{ applicationHash }}",
+            sdkVersion: "{{ sdkVersion }}",
+            // customFetch: fetch,
+            ...rest
+        });
+        this.user = null;
+    }
+    private _client: WunderGraphClient;
+    private logoutCallback: undefined | (() => void);
+    public setLogoutCallback(cb: ()=>void){
+        this.logoutCallback = cb;
+    }
+
+    private user: User | null;
+    private userListener: UserListener<User> | undefined;
+    public setUserListener = (listener: UserListener<User>) => {
+        this.userListener = listener;
+    }
+
+    private setUser = (user: User | null) => {
+        if (
+            (user === null && this.user !== null) ||
+            (user !== null && this.user === null) ||
+            JSON.stringify(user) !== JSON.stringify(this.user)
+        ) {
+            this.user = user;
+            if (this.userListener !== undefined) {
+                this.userListener(this.user);
+            }
+        }
+    };
+    private resultToResponse = <TResponse>(result: Result<any>): Response<TResponse> => {
+    if (result.error) {
+      return {
+        status: 'error',
+        message: result.error.message
+      }
+    }
+
+    return {
+      status: 'ok',
+      body: {
+        data: result.data
+      }
+    } as Response<any>;
+	};
+    {{#with operations}}
+    public query = {
+        {{~#each this}}
+        {{~#if (isAllTrue isQuery (invertBool isInternal))}}
+        '{{~path}}': async (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>) => {
+            const result = await this._client.query({
+                operationName: '{{name}}',
+                input: options.input,
+                abortSignal: options.abortSignal,
+            })
+            return this.resultToResponse<{{name}}Response>(result)
+        },
+        {{/if~}}
+        {{/each~}}
+    };
+    {{/with}}
+
+    {{#with operations}}
+    public mutation = {
+    {{~#each this}}
+        {{~#if (isAllTrue isMutation (invertBool isInternal))}}
+        '{{~path}}': async (options: RequestOptions<{{~#if hasInput}}{{name}}Input{{else}}never{{/if~}},{{name}}Response>) => {
+            const result =  await this._client.mutate({
+                operationName: '{{name}}',
+                input: options.input,
+                abortSignal: options.abortSignal,
+            })
+            return this.resultToResponse<{{name}}Response>(result)
+        },
+        {{/if~}}
+    {{/each~}}
+    };
+    {{/with}}
+
+    {{#with operations}}
+    public subscription = {
+    {{~#each this}}
+    {{~#if (isAllTrue isSubscription (invertBool isInternal))}}
+        '{{path}}': (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>, cb: (response: Response<{{name}}Response>) => void) => {
+            return this._client.subscribe({
+                operationName: '{{name}}',
+                liveQuery: false,
+                input: options.input,
+                abortSignal: options.abortSignal,
+            }, (result) => cb(this.resultToResponse<{{name}}Response>(result)));
+        },
+    {{/if~}}
+    {{/each~}}
+    };
+    {{/with}}
+
+    {{#with operations}}
+    public liveQuery = {
+    {{~#each this}}
+    {{~#if (isAllTrue isQuery isLiveQuery (invertBool isInternal))}}
+        "{{~path}}": (options: RequestOptions<{{#if hasInput}}{{name}}Input{{else}}never{{/if}},{{name}}Response>, cb: (response: Response<{{name}}Response>) => void) => {
+            return this._client.subscribe({
+                operationName: "{{name}}",
+                liveQuery: true,
+                input: options.input,
+                abortSignal: options.abortSignal,
+            }, (result) => cb(this.resultToResponse<{{name}}Response>(result)));
+        },
+    {{/if~}}
+    {{/each~}}
+    };
+    {{/with}}
+	{{#if (isNotEmpty s3Providers)}}
+    public uploadFiles = async (config: UploadConfig): Promise<Response<UploadResponse[]>> => {
+      try {
+        const result = await this._client.uploadFiles(config);
+        return {
+          status: "ok",
+          body: result.fileKeys.map((key) => ({key})),
+        };
+      } catch (e: any) {
+        return {
+          status: 'error',
+          message: e.message
+        }
+      }
+    };
+    {{/if}}
+
+    public fetchUser = async (revalidate?: boolean): Promise<User | null> => {
+		try {
+			const user = await this._client.fetchUser<User>({ revalidate });
+			if (user) {
+				this.setUser(user);
+				return this.user;
+			}
+		} catch {}
+		this.setUser(null);
+		return null;
+    };
+
+    {{#if (isNotEmpty authProviders)}}
+    public login : Record<AuthProviderId, AuthProvider['login']> = {
+        {{#each authProviders}}
+        {{id}}: (redirectURI?: string): void => {
+            this._client.login(AuthProviderId.{{id}}, redirectURI)
+        },
+        {{/each}}
+    }
+
+    public authProviders: Array<AuthProvider> = [
+        {{#each authProviders}}
+        {
+            id: AuthProviderId.{{id}},
+            login: this.login[AuthProviderId.{{id}}]
+        },
+        {{/each}}
+    ]
+
+    public logout = async (options?: LogoutOptions): Promise<boolean> => {
+        const response = await this._client.logout(options);
+
+        this.setUser(null);
+        this.logoutCallback?.()
+
+        return response
+    }
+    {{/if}}
+}
