@@ -1,4 +1,6 @@
 {{#each operations~}}
+    {{~#if (equalAny engine 2)}}
+    {{else}}
     {{~#if hasInput~}}
         {{name}}Input,
     {{~/if~}}
@@ -8,5 +10,6 @@
     {{~name}}Response,
     {{~#if includeResponseData~}}
         {{name}}ResponseData,
-    {{~/if~}}
+    {{~/if~}}   
+    {{/if}}
 {{~/each}}
