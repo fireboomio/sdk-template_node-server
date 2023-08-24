@@ -153,7 +153,7 @@ export const createClient = (config?: CreateClientConfig) => {
 
 export type Queries = {
 {{#each operations}}
-    {{#if (isAllTrue isQuery (invertBool isInternal))}}
+    {{#if (isAllTrue isQuery (invertBool isInternal) (invertBool (equalAny engine 2)))}}
   '{{path}}': {
     {{#if hasInput}}input: {{name}}Input{{else}}input?: undefined{{/if}}
     data: {{name}}ResponseData
@@ -166,7 +166,7 @@ export type Queries = {
 
 export type Mutations = {
 {{#each operations}}
-    {{#if isMutation}}
+    {{#if (isAllTrue isMutation (invertBool isInternal) (invertBool (equalAny engine 2)))}}
   '{{path}}': {
     {{#if hasInput}}input: {{name}}Input{{else}}input?: undefined{{/if}}
     data: {{name}}ResponseData
@@ -178,7 +178,7 @@ export type Mutations = {
 
 export type Subscriptions = {
 {{#each operations}}
-    {{#if (isAllTrue isSubscription (invertBool isInternal))}}
+    {{#if (isAllTrue isSubscription (invertBool isInternal) (invertBool (equalAny engine 2)))}}
   '{{path}}': {
     {{#if hasInput}}input: {{name}}Input{{else}}input?: undefined{{/if}}
     data: {{name}}ResponseData
@@ -190,7 +190,7 @@ export type Subscriptions = {
 
 export type LiveQueries = {
 {{#each operations}}
-    {{#if (isAllTrue isMutation isLiveQuery (invertBool isInternal))}}
+    {{#if (isAllTrue isMutation isLiveQuery (invertBool isInternal) (invertBool (equalAny engine 2)))}}
   "{{path}}": {
     {{#if hasInput}}input: {{name}}Input{{else}}input?: undefined{{/if}}
     data: {{name}}ResponseData
