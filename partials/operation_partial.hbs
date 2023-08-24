@@ -7,9 +7,9 @@
     {{~#if (isAllTrue hasInternalInput includeInternal)~}}
         {{name}}InternalInput,
     {{~/if~}}
-    {{~name}}Response,
+    {{#if (equalAny engine 1)}}{{else}}{{~name}}Response,{{/if}}
     {{~#if includeResponseData~}}
         {{name}}ResponseData,
-    {{~/if~}}   
+    {{~/if~}}
     {{/if}}
 {{~/each}}
