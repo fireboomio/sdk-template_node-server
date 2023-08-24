@@ -18,7 +18,7 @@ import {{../name}}__{{@key}}__postUpload from './storage/{{../name}}/{{@key}}/po
   {{~#if global}}
     {{~#each global.httpTransport as |hook hookName|~}}
       {{~#if hook.enableForAllOperations~}}
-import global_{{hookName}} from './global/{{hookName}}.ts';
+import global_{{hookName}} from './global/{{hookName}}';
       {{/if~}}
     {{~/each~}}
   {{~/if~}}
@@ -44,108 +44,80 @@ import {{replaceSpecial operationName "__"}}_{{this}} from './operation/{{operat
   {{~/each~}}
 {{~/with~}}
 
-{{~#if customizedDataSources}}
-    {{#each customizedDataSources}}
-import {{this}} from './customize/{{this}}';
-    {{/each}}
-{{/if}}
-
 export default configureWunderGraphServer<HooksConfig, InternalClient, {}>(() => ({
   hooks: {
 {{#with hooksConfiguration}}
     global: {
-  {{~#if global.httpTransport}}
+  {{#if global.httpTransport}}
       httpTransport: {
     {{#each global.httpTransport as |hook hookName|}}
       {{#if hook.enableForAllOperations}}
         {{lowerFirst hookName}}: {
           hook: global_{{hookName}},
         },
-      {{/if}}
+      {{/if~}}
     {{/each}}
       },
-  {{/if~}}
-  {{~#if global.wsTransport}}
+  {{/if}}
+  {{#if global.wsTransport}}
       wsTransport: {
         OnConnectionInit: {
-              hook: global_OnConnectionInit,
-              enableForDataSources: [{{global.wsTransport}}]
+          hook: global_OnConnectionInit,
+          enableForDataSources: [{{global.wsTransport}}]
         },
       },
-  {{/if~}}
-    },
-  {{~#if authentication}}
+  {{/if}}
+  },
     authentication: {
     {{#each authentication}}
       {{this}},
     {{/each}}
     },
-  {{/if}}
-  {{~#if queries}}
     queries: {
     {{#each queries as |hooks operationName|}}
-        "{{operationName}}": {
+      "{{operationName}}": {
         {{#each hooks}}
-            {{this}}: {{replaceSpecial operationName "__"}}_{{this}},
+          {{this}}: {{replaceSpecial operationName "__"}}_{{this}},
         {{/each}}
-        },
+      },
     {{/each}}
     },
-  {{/if}}
-  {{~#if mutations}}
     mutations: {
-    {{#each mutations as |hooks operationName|~}}
-        "{{operationName}}": {
+    {{#each mutations as |hooks operationName|}}
+      "{{operationName}}": {
         {{#each hooks}}
-            {{this}}: {{replaceSpecial operationName "__"}}_{{this}},
+          {{this}}: {{replaceSpecial operationName "__"}}_{{this}},
         {{/each}}
-        },
+      },
     {{/each}}
     },
-  {{/if}}
-  {{~#if subscriptions}}
     subscriptions: {
-    {{#each subscriptions as |hooks operationName|~}}
-        "{{operationName}}": {
+    {{#each subscriptions as |hooks operationName|}}
+      "{{operationName}}": {
         {{#each hooks}}
-            {{this}}: {{replaceSpecial operationName "__"}}_{{this}},
-        {{/each}}
-        },
+         {{this}}: {{replaceSpecial operationName "__"}}_{{this}},
     {{/each}}
-    }
-  {{/if~}}
-{{/with}}
+      },
+    {{/each}}
+    },
 {{#if s3Providers}}
     uploads: {
     {{#each s3Providers}}
-        {{#if uploadProfiles}}
-            {{name}}: {
-            {{#each uploadProfiles}}
-                {{@key}}: {
-                {{#if hooks.preUpload}}
-                    preUpload: {{../name}}__{{@key}}__preUpload,
-                {{/if}}
-                {{#if hooks.postUpload}}
-                    postUpload: {{../name}}__{{@key}}__postUpload
-                {{/if}}
-                },
-            {{/each}}
-            },
-        {{/if}}
+      {{name}}: {
+        {{#each uploadProfiles}}
+        {{@key}}: {
+            {{#if hooks.preUpload}}
+          preUpload: {{../name}}__{{@key}}__preUpload,
+            {{/if~}}
+            {{#if hooks.postUpload}}
+          postUpload: {{../name}}__{{@key}}__postUpload
+            {{/if}}
+        },
+        {{/each}}
+      },
     {{/each}}
     },
 {{/if}}
-  },
-{{#if customizedDataSources}}
-    graphqlServers: [
-    {{#each customizedDataSources}}
-        {
-        apiNamespace: "{{this}}",
-        serverName: "{{this}}",
-        enableGraphQLEndpoint: true,
-        schema: {{this}}
-        },
-    {{/each}}
-    ]
-{{/if}}
+{{/with}}
+  }
 }));
