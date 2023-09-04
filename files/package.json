@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@web-std/fetch": "^4.1.0",
-    "fireboom-wundersdk": "^0.140.0",
+    "fireboom-wundersdk": "^0.140.2",
     "graphql": "^16.6.0"
   },
   "devDependencies": {
